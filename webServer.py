@@ -11,7 +11,7 @@ from flask_sqlalchemy import SQLAlchemy
 '''
 app = Flask(__name__)
 app.config['SECRET_KEY'] ='root'
-app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://root:root@localhost:3306/appUserData'
+app.config['SQLALCHEMY_DATABASE_URI']='mysql+pymysql://root:root@127.0.0.1:3306/appUserData'
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN']=True
 db = SQLAlchemy(app)
 '''
@@ -45,7 +45,7 @@ def login():
         username = j_data['username']
         passwd = j_data['passwd']
 
-        # TODO: login mysql & build the new table
+        # login mysql & build the new table
         cursor = db.cursor()
         sql = "INSERT INTO users \
                 VALUES ('%s', '%s')" % \

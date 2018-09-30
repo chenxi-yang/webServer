@@ -109,10 +109,12 @@ def login():
 @app.route('/wrong_password', methods=['POST', 'GET'])
 def wrong_password():
     # TODO: wrong password handler
+    return 0
 
 @app.route('/home/<user_id>', methods=['POST', 'GET'])
 def home_user_id():
     # TODO: return the records of the user with this user_id
+    return 0
 
 @app.route('/home/plan_setting/<user_id>', methods=['POST', 'GET'])
 def home_plan_setting():
@@ -138,7 +140,7 @@ def home_plan_setting():
 
 # TODO: get users' app usage history automatically
 
-@app.route('error')
+@app.route('/error')
 def error():
     return 'Ooooooops, error happened.'
 

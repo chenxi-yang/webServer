@@ -112,12 +112,12 @@ def wrong_password():
     return 0
 
 @app.route('/home/<user_id>', methods=['POST', 'GET'])
-def home_user_id():
+def home_user_id(user_id):
     # TODO: return the records of the user with this user_id
-    return 0
+    return user_id + 'user_idright'
 
 @app.route('/home/plan_setting/<user_id>', methods=['POST', 'GET'])
-def home_plan_setting():
+def home_plan_setting(user_id):
     # insert into user_plan
     cursor = db.cursor()
     if request.method == 'POST':
@@ -125,11 +125,11 @@ def home_plan_setting():
         j_data = json.loads(data)
         start_time = j_data['start_time']
         end_time = j_data['end_time']
-        app_name = j_data['user_id']
+        plan_name = j_data['plan_name']
 
         insert_plan_operation = "INSERT INTO user_plan \
                                     VALUES ('%s', '%s', '%s')" % \
-                                    (start_time, end_time, app_name)
+                                    (start_time, end_time, plan_name)
         try:
             cursor.execute(insert_plan_operation)
             db.commit()

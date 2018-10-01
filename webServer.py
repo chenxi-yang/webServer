@@ -8,6 +8,7 @@ from config import MYSQL_DATABASE_DB
 from config import MYSQL_DATABASE_HOST
 from markedWords import *
 from helper import *
+from dbFieldIndex import *
 import json
 
 from flask_sqlalchemy import SQLAlchemy
@@ -54,14 +55,16 @@ def login():
         cursor = db.cursor()
 
         # check whether the user existed before
-        check_operation = "SELECT 1 FROM users WHERE user_name = '%s'" % username
+        check_operation = "SELECT * FROM users WHERE user_username = '%s'" % username
         result = get_one_row(cursor, check_operation)
+        user_id = -1
 
         # sign up
         if result is None:
-            get_last_insert_id_operation = "SELECT LAST_INSERT_ID();"
-            result_last_insert_id = get_one_row(cursor, get_last_insert_id_operation)
-            insert_operation = "INSERT INTO users \
+            get_last_insert_id_operation = "SELECT MAX(user_id) FROM users;"
+            result_last_insert_id = get_one_row(cursor, get_last_insert_id_operation)[INSERT_ID]
+            print(result_last_insert_id)
+            insert_operation = "INSERT INTO users (user_username, user_password) \
                                             VALUES ('%s', '%s')" % \
                                (username, password)
             try:
@@ -69,42 +72,24 @@ def login():
                 db.commit()
             except:
                 db.rollback()
-            return redirect(url_for('home/\'%s\'')) % result_last_insert_id
+            user_id = result_last_insert_id + 1
+            # ret= {'user_id': result_last_insert_id + 1}
+            # return json.dumps(ret)
         # log in
         else:
             # valid password
-            if password == result["user_password"]:
-                return redirect(url_for('home/\'%s\'')) % result["user_id"]
+            if password == result[USERS_USER_PASSWORD]:
+                user_id = result[USERS_USER_ID]
+                # ret = {'user_id': result[USERS_USER_ID]}
+                # return json.dumps(ret)
             # invalid password
-            else:
-                return WRONG_PASSWORD
+            # else:
+            #     user_id =
+            #     return WRONG_PASSWORD
+        ret = {'user_id': user_id}
+        return json.dumps(ret)
 
-        '''
-        # user already existed
-        if result.with_rows:
-            result_set = cursor.fetchall()
-            for row in result_set:
-                # valid password
-                if password == row["user_password"]:
-                    return redirect(url_for('home/\'%s\'')) % row["user_id"]
-                # invalid password
-                else:
-                    return WRONG_PASSWORD
-        # new user
-        else:
-            get_last_insert_id_operation = "SELECT LAST_INSERT_ID();"
-
-            insert_operation = "INSERT INTO users \
-                                VALUES ('%s', '%s')" % \
-                               (username, password)
-            try:
-                cursor.execute(insert_operation)
-                db.commit()
-            except:
-                db.rollback()
-        '''
-
-    return redirect(url_for('error'))
+    return redirect(url_for('/error'))
 
 @app.route('/wrong_password', methods=['POST', 'GET'])
 def wrong_password():

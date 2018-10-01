@@ -3,8 +3,9 @@ Some helper functions
 '''
 def get_one_row(cursor, sql):
     cursor.execute(sql)
-    result = cursor.fetchone()
-    if result is None:
+    result = cursor.fetchall()
+    print('result', result)
+    if len(result) == 0:
         return None
     else:
-        return cursor.fetchone()[0]
+        return result[0]

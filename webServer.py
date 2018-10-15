@@ -73,21 +73,19 @@ def login():
             except:
                 db.rollback()
             user_id = result_last_insert_id + 1
-            # ret= {'user_id': result_last_insert_id + 1}
-            # return json.dumps(ret)
+            ret = {'user_id': result_last_insert_id + 1}
+            return 200, json.dumps(ret)
         # log in
         else:
             # valid password
             if password == result[USERS_USER_PASSWORD]:
                 user_id = result[USERS_USER_ID]
-                # ret = {'user_id': result[USERS_USER_ID]}
-                # return json.dumps(ret)
-            # invalid password
-            # else:
-            #     user_id =
-            #     return WRONG_PASSWORD
-        ret = {'user_id': user_id}
-        return json.dumps(ret)
+                ret = {'user_id': result[USERS_USER_ID]}
+                return 200, json.dumps(ret)
+            # invalid password: user_id == -1
+            else:
+                ret = {'user_id': user_id}
+                return 200, json.dumps(ret)
 
     return redirect(url_for('/error'))
 
@@ -96,10 +94,31 @@ def wrong_password():
     # TODO: wrong password handler
     return 0
 
-@app.route('/home/<user_id>', methods=['POST', 'GET'])
+@app.route('/home/<user_id>')
 def home_user_id(user_id):
-    # TODO: return the records of the user with this user_id
-    return user_id + 'user_idright'
+    cursor = db.cursor()
+
+    check_operation = "SELECT * FROM users WHERE user_id = '%s'" % user_id
+    result = get_all_row(cursor, check_operation)
+
+    user_plans = []
+    plan_dict = {
+        "plan_id": 0,
+        "start_time": 0,
+        "end_time": 0,
+        "plan_name": "name"
+    }
+
+    for row in result:
+        plan_dict["plan_id"] = row[USER_PLAN_PLAN_ID]
+        plan_dict["plan_name"] = row[USER_PLAN_PLAN_NAME]
+        plan_dict["start_time"] = row[USER_PLAN_START_TIME]
+        plan_dict["end_time"] = row[USER_PLAN_END_TIME]
+        user_plans.append(plan_dict)
+
+    res = json.dumps(user_plans)
+
+    return 200, res
 
 @app.route('/home/plan_setting/<user_id>', methods=['POST', 'GET'])
 def home_plan_setting(user_id):
@@ -120,15 +139,15 @@ def home_plan_setting(user_id):
             db.commit()
         except:
             db.rollback()
+            return 404, 'Plan set error'
 
-    return 'Plan Set'
+    return 200, 'Plan set successfully'
 
 # TODO: get users' app usage history automatically
 
 @app.route('/error')
 def error():
-    return 'Ooooooops, error happened.'
-
+    return 404, 'Error'
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=80, debug=True)

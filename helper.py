@@ -9,3 +9,8 @@ def get_one_row(cursor, sql):
         return None
     else:
         return result[0]
+
+def get_all_row(cursor, sql):
+    cursor.execute(sql)
+    result = cursor.fetchall()
+    return result
